@@ -15,12 +15,12 @@ export default class MaskingLayer {
   	/**
      * @public {Number}
      */
-    this.maskWidth = maskOptions.width;
+    this.maskWidth = maskOptions.width || 300;
 
     /**
      * @public {Number}
      */
-    this.maskHeight = maskOptions.height;
+    this.maskHeight = maskOptions.height || 300;
   }
 
   /**
