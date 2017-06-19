@@ -18,7 +18,9 @@ export default class FluidImageMask {
    * Builds the layers based on the configuration settings.
    * @constructor
    */
-  constructor(config) {
+  constructor(opt_config) {
+    let config = opt_config || {};
+
     /**
      * An instance of background layer.
      * @public {?BackgroundLayer}
@@ -46,12 +48,13 @@ export default class FluidImageMask {
     /**
      * @public {!HTMLElement}
      */
-    this.targetEl = config.targetEl;
+    this.targetEl = config.targetEl || document.body;
 
     /**
      * @public {string}
      */
-    this.filePath = config.filePath || '';
+    this.filePath = config.filePath ||
+        'https://unsplash.it/1920/1280';
 
     /**
      * @public {Number}
@@ -69,40 +72,37 @@ export default class FluidImageMask {
    * @public
    */
   create() {
-    if (this.targetEl) {
-      this.createLayers();
-      this.addResizeEvent();
-    } else {
-      console.info('No target container was found for the Fluid Image Mask');
-    }
+    this.createBackgroundLayer();
   }
 
   /**
-   * Creates instances of background and masking layers. Binds a
-   * callback to the background image load function which will then place
-   * the mask.
+   * Creates a background layer instance. Adds a function to be called once the
+   * background image has loaded then loads the background layer.
    * @public
    */
-  createLayers() {
+  createBackgroundLayer() {
     this.backgroundLayer = new BackgroundLayer({
       'targetEl': this.targetEl,
       'filePath': this.filePath
     });
-    this.backgroundLayer.addReadyCallback(this.backgroundReady.bind(this));
+    this.backgroundLayer.addReadyCallback(this.createMaskLayer.bind(this));
     this.backgroundLayer.loadImage();
   }
 
   /**
-   * On background ready callback to begin masking.
+   * Creates a mask layer instance.
+   * Adds resize and mousemove handlers.
    * @public
    */
-  backgroundReady() {
+  createMaskLayer() {
+    console.log('ready');
     this.maskingLayer = new MaskingLayer({
       'targetEl': this.backgroundLayer.getLayerEl(),
       'width': this.maskWidth,
       'height': this.maskHeight,
     });
     this.maskingLayer.addMask();
+    this.addResizeEvent();
     this.addMousemoveEvent();
   }
 
@@ -119,7 +119,7 @@ export default class FluidImageMask {
   }
 
   /**
-   * Adds the required mousemove event to position the mask.
+   * Adds the required mousemove event to position a mask.
    * @public
    */
   addMousemoveEvent() {
